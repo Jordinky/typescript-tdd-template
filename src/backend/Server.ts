@@ -3,6 +3,8 @@ import cors from "cors";
 import express from "express";
 import helmet from "helmet";
 
+import { todoRouter } from "../todo/infraestructure/http/todo-router";
+
 export class Server {
 	private readonly express: express.Express;
 	private readonly port: string;
@@ -13,6 +15,7 @@ export class Server {
 		this.express.use(helmet());
 		this.express.use(cors());
 		this.express.use(json());
+		this.express.use("/todo", todoRouter);
 		this.express.use(urlencoded({ extended: true }));
 	}
 
