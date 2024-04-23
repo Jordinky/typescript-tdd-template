@@ -2,9 +2,9 @@ import { Request, Response } from "express";
 
 import { TodoServices } from "../../../application/services";
 import { TodoNotFound } from "../../../domain/todo-not-found";
+
 export class TodoController {
-	constructor(
-		private readonly TodoServices: TodoServices) {}
+	constructor(private readonly TodoServices: TodoServices) {}
 
 	async getTodo(req: Request, res: Response) {
 		const { id } = req.params;
@@ -20,11 +20,11 @@ export class TodoController {
 			return res.status(500).send();
 		}
 	}
+
 	async getAllTodos(req: Request, res: Response) {
-		
 		try {
 			const todo = await this.TodoServices.getAll();
-			
+
 			return res.status(200).send(todo);
 		} catch (error) {
 			if (error instanceof TodoNotFound) {
@@ -34,7 +34,8 @@ export class TodoController {
 			return res.status(500).send();
 		}
 	}
-	async deleteTodo(req: Request, res: Response){
+
+	async deleteTodo(req: Request, res: Response) {
 		const { id } = req.params;
 		try {
 			const todo = await this.TodoServices.deleteTodo(id);
@@ -48,10 +49,11 @@ export class TodoController {
 			return res.status(500).send();
 		}
 	}
-	async updateTodo(req: Request, res: Response){
+
+	async updateTodo(req: Request, res: Response) {
 		const {
 			body,
-			params: {todoId},
+			params: { todoId },
 		} = req;
 		try {
 			const updatedTodo = await this.TodoServices.deleteTodo(todoId);
@@ -65,23 +67,32 @@ export class TodoController {
 			return res.status(500).send();
 		}
 	}
-	async newTodo(req: Request, res: Response){
-		const {body} = req;
+
+	async newTodo(req: Request, res: Response) {
+		const { body } = req;
+		if (!body.id || !body.description || !body.status) {
+			res.status(400).send({
+				status: "FAILED",
+				data: {
+					error: "One of the following keys is missing: 'id','completed','status'",
+				},
+			});
+			console.log(body);
+
+			return;
+		}
 		const newToDo = {
 			id: body.id,
 			description: body.description,
-			completed: body.completed
+			status: body.status,
 		};
 		try {
-			const createdTodo = await this.TodoServices.newTodo(newToDo);
-
-			return res.status(200).send(createdTodo);
-		} catch (error) {
-			if (error instanceof TodoNotFound) {
-				return res.status(404).send();
-			}
-
-			return res.status(500).send();
+			const createdToDo = this.TodoServices.newTodo(newToDo);
+			res.status(201).send({ status: "OK", data: createdToDo });
+		} catch (error: any) {
+			res
+				.status(error?.status || 500)
+				.send({ status: "FAILED", data: { error: error?.message || error } });
 		}
 	}
 }

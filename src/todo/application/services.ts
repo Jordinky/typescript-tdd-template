@@ -4,7 +4,7 @@ import { TodoRepository } from "../infraestructure/todo-repository/todo-reposito
 
 export class TodoServices {
 	constructor(private readonly todoRepository: TodoRepository) {}
-	
+
 	async getOne(id: string): Promise<Todo> {
 		const todo = await this.todoRepository.getById(id);
 
@@ -14,20 +14,24 @@ export class TodoServices {
 
 		return todo;
 	}
+
 	async getAll(): Promise<Todo[]> {
-		const todos = await this.todoRepository.findAll()
+		const todos = await this.todoRepository.findAll();
+
 		return todos;
 	}
+
 	async deleteTodo(id: string): Promise<number> {
-		const todoDelete = await this.todoRepository.deleteById(id)
+		const todoDelete = await this.todoRepository.deleteById(id);
 		if (!todoDelete) {
 			throw new TodoNotFound(id);
 		}
 
 		return todoDelete;
 	}
-	async updateTodo(id:string, changes: any): Promise<Todo>{
-		const updateTodo = await this.todoRepository.updateTodo(id,changes);
+
+	async updateTodo(id: string, changes: any): Promise<Todo> {
+		const updateTodo = await this.todoRepository.updateTodo(id, changes);
 
 		if (!updateTodo) {
 			throw new TodoNotFound(id);
@@ -35,10 +39,12 @@ export class TodoServices {
 
 		return updateTodo;
 	}
-	async newTodo(newTodo: any): Promise<number>{
-		const insertTodo = new Todo(newTodo.id,newTodo.description,newTodo.status);
+
+	async newTodo(newTodo: any): Promise<number> {
+		const insertTodo = new Todo(newTodo.id, newTodo.description, newTodo.status);
 
 		const createTodo = this.todoRepository.newTodo(insertTodo);
-		return  createTodo;
+
+		return createTodo;
 	}
 }
