@@ -21,13 +21,12 @@ export class TodoServices {
 		return todos;
 	}
 
-	async deleteTodo(id: string): Promise<number> {
-		const todoDelete = await this.todoRepository.deleteById(id);
-		if (!todoDelete) {
-			throw new TodoNotFound(id);
+	async deleteTodo(id: string): Promise<void> {
+		try{
+			await this.todoRepository.deleteById(id);
+		}catch(error){
+			throw error;
 		}
-
-		return todoDelete;
 	}
 
 	async updateTodo(id: string, changes: any): Promise<Todo> {

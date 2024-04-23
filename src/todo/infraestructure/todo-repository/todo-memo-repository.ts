@@ -15,38 +15,65 @@ export class TodoMemoRepository implements TodoRepository {
 		return todos;
 	}
 
-	async deleteById(id: string): Promise<number> {
-		const indexTodoDelete = TODO_COLLECTION.findIndex((todo: any) => todo.id === id);
-		if (indexTodoDelete) {
-			TODO_COLLECTION.splice(indexTodoDelete, 1);
+	async deleteById(id: string): Promise<void> {
+		try{
+			const indexTodoDelete = TODO_COLLECTION.findIndex((todo:any)=>todo.id === id);
+			if(indexTodoDelete === -1){
+				throw {
+					status: 400,
+					message: `Can't find todo with the id '${id}'`,
+				  };
+			}
+			TODO_COLLECTION.splice(indexTodoDelete,1);
+			
+		}catch(error:any){
+			throw { status: error?.status || 500, message: error?.message || error };
 		}
-
-		return indexTodoDelete;
 	}
 
-	async updateTodo(id: string, changes: Array<string>): Promise<Todo | null> {
-		const indexTodoUpdate = TODO_COLLECTION.findIndex((todo: any) => todo.id === id);
-		const update = {
-			...TODO_COLLECTION[indexTodoUpdate],
-			...changes,
-		};
-		if (indexTodoUpdate) {
-			TODO_COLLECTION[indexTodoUpdate] = update;
-		}
+	async updateTodo(id: any, changes: Array<string>): Promise<Todo | null> {
+		try{
+			const isAlreadyAdded = 
+			TODO_COLLECTION.findIndex((todo:any) => todo.description === id.description) > -1;
+				if(isAlreadyAdded){
+				throw {
+					status: 400,
+					message: `Todo with the name '${changes}' already exists`,
+				};
+			}
+			const todoUpdate = TODO_COLLECTION.findIndex((todo:any)=>todo.id === id);
+			if (todoUpdate === -1){
+				throw {
+					status: 400,
+					message: `Can't find todo with the id '${id}'`,
+				  };
+			}
+			const updatedTodo = {
+				...TODO_COLLECTION[todoUpdate],
+				...changes,
+				updatedAt: new Date().toLocaleDateString("en-US",{timeZone: "UTC"}),
+			};
+			TODO_COLLECTION[todoUpdate] = updatedTodo;
 
-		return update;
+			return updatedTodo;
+			}catch(error:any){
+				throw { status: error?.status || 500, message: error?.message || error };
+			}
 	}
 
 	async newTodo(newTodo: any): Promise<number> {
-		try {
-			const isAlreadyAdded =
-				TODO_COLLECTION.findIndex((todo: any) => todo.description === newTodo.description) > -1;
-			if (!isAlreadyAdded) {
-				TODO_COLLECTION.push(newTodo);
-			}
-
-			return newTodo;
-		} catch (error: any) {
+		try{
+			const isAlreadyAdded = 
+			TODO_COLLECTION.findIndex((todo:any) => todo.description === newTodo.description) > -1;
+		if(isAlreadyAdded){
+			throw {
+				status: 400,
+				message: `Todo with the name '${newTodo.description}' already exists`,
+			  };
+		}
+		TODO_COLLECTION.push(newTodo);
+		return newTodo;
+		}catch(error:any){
 			throw { status: error?.status || 500, message: error?.message || error };
 		}
 	}
