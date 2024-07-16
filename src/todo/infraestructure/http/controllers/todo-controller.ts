@@ -37,44 +37,40 @@ export class TodoController {
 
 	async deleteTodo(req: Request, res: Response) {
 		const { id } = req.params;
-		if(!id){
-			res
-				.status(400)
-				.send({
-					status: "FAILED",
-					data: {error: "Parameter ':id' can not be empty"},
-				});
+		if (!id) {
+			res.status(400).send({
+				status: "FAILED",
+				data: { error: "Parameter ':id' can not be empty" },
+			});
 		}
-		try{
+		try {
 			const todoDelete = this.TodoServices.deleteTodo(id);
-			res.status(200).send({ status: "OK", data:todoDelete });
-		}catch (error:any){
+			res.status(200).send({ status: "OK", data: todoDelete });
+		} catch (error: any) {
 			res
 				.status(error?.status || 500)
-				.send({status: "FAILED",data: {error: error?.message || error} });
+				.send({ status: "FAILED", data: { error: error?.message || error } });
 		}
 	}
 
 	async updateTodo(req: Request, res: Response) {
-		if(!req.params.id){
-			res
-				.status(400)
-				.send({
-					status: "FAILED",
-					data: {error: "Parameter ':todoId' can not be empty"},
-				});
+		if (!req.params.id) {
+			res.status(400).send({
+				status: "FAILED",
+				data: { error: "Parameter ':todoId' can not be empty" },
+			});
 		}
-		try{
-			const updatedTodo = this.TodoServices.updateTodo(req.params.id,req.body);
-			res.status(200).send({status: "OK",data: updatedTodo});
-		}catch (error:any){
+		try {
+			const updatedTodo = this.TodoServices.updateTodo(req.params.id, req.body);
+			res.status(200).send({ status: "OK", data: updatedTodo });
+		} catch (error: any) {
 			res
 				.status(error?.status || 500)
-				.send({status: "FAILED",data: {error: error?.message || error} });
+				.send({ status: "FAILED", data: { error: error?.message || error } });
 		}
 	}
 
-	async newTodo(req: Request, res: Response) {
+	async newTodo(req: Request, res: Response): Promise<void> {
 		const { body } = req;
 		if (!body.id || !body.description || !body.status) {
 			res.status(400).send({
@@ -87,13 +83,14 @@ export class TodoController {
 
 			return;
 		}
+
 		const newToDo = {
 			id: body.id,
 			description: body.description,
 			status: body.status,
 		};
 		try {
-			const createdToDo = this.TodoServices.newTodo(newToDo);
+			const createdToDo = await this.TodoServices.newTodo(newToDo);
 			res.status(201).send({ status: "OK", data: createdToDo });
 		} catch (error: any) {
 			res
