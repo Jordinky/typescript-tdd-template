@@ -72,20 +72,23 @@ export class TodoController {
 
 	async newTodo(req: Request, res: Response): Promise<void> {
 		const { body } = req;
-		if (!body.id || !body.description || !body.status) {
+		if (!body.description || !body.status) {
 			res.status(400).send({
 				status: "FAILED",
 				data: {
-					error: "One of the following keys is missing: 'id','completed','status'",
+					error: "One of the following keys is missing: 'completed','status'",
 				},
 			});
-			console.log(body);
 
 			return;
 		}
 
+		const allTodos = await this.TodoServices.getAll();
+
+		const lastTodo = allTodos.slice(-1);
+
 		const newToDo = {
-			id: body.id,
+			id: +lastTodo.map((todo) => todo.id) + 1,
 			description: body.description,
 			status: body.status,
 		};
