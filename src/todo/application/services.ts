@@ -29,8 +29,8 @@ export class TodoServices {
 		}
 	}
 
-	async updateTodo(id: string, changes: any): Promise<Todo> {
-		const updateTodo = await this.todoRepository.updateTodo(id, changes);
+	async updateTodo(id: string, description:string, status: boolean): Promise<Todo> {
+		const updateTodo = await this.todoRepository.updateTodo(id, description, status);
 
 		if (!updateTodo) {
 			throw new TodoNotFound(id);

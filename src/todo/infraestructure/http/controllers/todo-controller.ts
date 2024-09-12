@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 
 import { TodoServices } from "../../../application/services";
 import { TodoNotFound } from "../../../domain/todo-not-found";
+import stringToBoolean from "../../../../utils/utils";
 
 export class TodoController {
 	constructor(private readonly TodoServices: TodoServices) {}
@@ -61,8 +62,34 @@ export class TodoController {
 			});
 		}
 		try {
-			const updatedTodo = this.TodoServices.updateTodo(req.params.id, req.body);
+
+			const { body } = req;
+			if (!body.description || !body.status) {
+				res.status(400).send({
+					status: "FAILED",
+					data: {
+						error: "One of the following keys is missing: 'completed','status'",
+					},
+				});
+	
+				return;
+			}
+			if (typeof body.status !== "boolean") {
+				res.status(400).send({
+					status: "FAILED",
+					data: {
+						error: "invalid datatype, you must send a boolean (true or false)",
+					},
+				});
+	
+				return;
+			}
+
+			const updatedTodo = this.TodoServices.updateTodo(req.params.id, body.description, body.status);
 			res.status(200).send({ status: "OK", data: updatedTodo });
+
+
+			
 		} catch (error: any) {
 			res
 				.status(error?.status || 500)
@@ -72,7 +99,7 @@ export class TodoController {
 
 	async newTodo(req: Request, res: Response): Promise<void> {
 		const { body } = req;
-		if (!body.description || !body.status) {
+		if (!body.description) {
 			res.status(400).send({
 				status: "FAILED",
 				data: {
@@ -84,14 +111,18 @@ export class TodoController {
 		}
 
 		const allTodos = await this.TodoServices.getAll();
-
 		const lastTodo = allTodos.slice(-1);
+		const newId = +lastTodo.map((todo) => todo.id) + 1
+		const id:string = newId.toString()
+
+		const status: boolean = false
 
 		const newToDo = {
-			id: +lastTodo.map((todo) => todo.id) + 1,
+			id: id, 
 			description: body.description,
-			status: body.status,
+			status: status,
 		};
+
 		try {
 			const createdToDo = await this.TodoServices.newTodo(newToDo);
 			res.status(201).send({ status: "OK", data: createdToDo });

@@ -30,14 +30,14 @@ export class TodoMemoRepository implements TodoRepository {
 		}
 	}
 
-	async updateTodo(id: any, changes: Array<string>): Promise<Todo | null> {
+	async updateTodo(id: any, description:string,status:boolean): Promise<Todo | null> {
 		try {
 			const isAlreadyAdded =
 				TODO_COLLECTION.findIndex((todo: any) => todo.description === id.description) > -1;
 			if (isAlreadyAdded) {
 				throw {
 					status: 400,
-					message: `Todo with the name '${changes}' already exists`,
+					message: `Todo with the name '${description}' already exists`,
 				};
 			}
 			const todoUpdate = TODO_COLLECTION.findIndex((todo: any) => todo.id === id);
@@ -49,7 +49,8 @@ export class TodoMemoRepository implements TodoRepository {
 			}
 			const updatedTodo = {
 				...TODO_COLLECTION[todoUpdate],
-				...changes,
+				description,
+				status,
 				updatedAt: new Date().toLocaleDateString("en-US", { timeZone: "UTC" }),
 			};
 			TODO_COLLECTION[todoUpdate] = updatedTodo;

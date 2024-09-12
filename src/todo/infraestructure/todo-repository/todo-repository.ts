@@ -5,5 +5,5 @@ export interface TodoRepository {
 	newTodo(newTodo: unknown): Promise<number>;
 	findAll(): Array<Todo>;
 	deleteById(id: string): Promise<void>;
-	updateTodo(id: string, changes: Array<string>): Promise<Todo | null>;
+	updateTodo(id: string, description:string, status:boolean): Promise<Todo | null>;
 }
